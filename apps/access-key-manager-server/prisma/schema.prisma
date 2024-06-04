@@ -1,0 +1,63 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model AccessKey {
+  accessLogs      AccessLog[]
+  createdAt       DateTime             @default(now())
+  expiryDate      DateTime?
+  id              String               @id @default(cuid())
+  procurementDate DateTime?
+  school          School?              @relation(fields: [schoolId], references: [id])
+  schoolId        String?
+  status          EnumAccessKeyStatus?
+  updatedAt       DateTime             @updatedAt
+}
+
+model School {
+  accessKeys   AccessKey[]
+  address      String?
+  contactEmail String?
+  createdAt    DateTime    @default(now())
+  id           String      @id @default(cuid())
+  name         String?
+  updatedAt    DateTime    @updatedAt
+}
+
+model AccessLog {
+  accessKey   AccessKey?           @relation(fields: [accessKeyId], references: [id])
+  accessKeyId String?
+  action      EnumAccessLogAction?
+  createdAt   DateTime             @default(now())
+  id          String               @id @default(cuid())
+  timestamp   DateTime?
+  updatedAt   DateTime             @updatedAt
+  user        User?                @relation(fields: [userId], references: [id])
+  userId      String?
+}
+
+model User {
+  accessLogs AccessLog[]
+  createdAt  DateTime    @default(now())
+  email      String?     @unique
+  firstName  String?
+  id         String      @id @default(cuid())
+  lastName   String?
+  password   String
+  roles      Json
+  updatedAt  DateTime    @updatedAt
+  username   String      @unique
+}
+
+enum EnumAccessKeyStatus {
+  Option1
+}
+
+enum EnumAccessLogAction {
+  Option1
+}
